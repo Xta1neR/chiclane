@@ -1,0 +1,138 @@
+{% extends "store/base.html" %}
+{% block title %}Edit Category{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-yellow-400">Edit Category</h1>
+
+        <form id="editCategoryForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Name -->
+            <label class="block mb-2 text-gray-300">Name</label>
+            <input type="text" name="name" class="w-full mb-4 p-2 rounded text-black"
+                   value="{{ category.name }}" required>
+
+            <!-- Parent Category Checkbox -->
+            <label class="inline-flex items-center mb-4 text-gray-300">
+                <input type="checkbox" name="is_parent" id="isParentCheckbox" class="mr-2"
+                    {% if not category.parent %}checked{% endif %}>
+                Parent Category?
+            </label>
+
+            <!-- Parent Dropdown -->
+            <div id="parentSelectDiv" class="mb-4">
+                <label class="block mb-2 text-gray-300">Parent Category</label>
+                <select name="parent" id="parentSelect" class="w-full p-2 rounded text-black">
+                    <option value="">-- Select Parent --</option>
+                    {% for c in categories %}
+                        {% if c.id != category.id %}
+                        <option value="{{ c.id }}" {% if category.parent and category.parent.id == c.id %}selected{% endif %}>
+                            {{ c.name }}
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Parent Category Images -->
+            <div id="parentImageDiv" class="mb-4" style="display: none;">
+                <!-- Existing Images -->
+                <label class="block mb-2 text-gray-300">Existing Images</label>
+                <div id="existingPreview" class="flex gap-2 flex-wrap mb-4">
+                    {% for img in category.images.all %}
+                    <div class="relative w-32 h-32 rounded overflow-hidden border border-gray-300" data-image-id="{{ img.id }}">
+                        <img src="{{ img.image.url }}" class="w-full h-full object-cover">
+                        <button type="button" class="absolute top-0 right-0 bg-red-500 text-white px-1 rounded delete-btn">X</button>
+                        <input type="hidden" name="keep_image_{{ img.id }}" value="1">
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Upload new images -->
+                <label class="block mb-2 text-gray-300">Upload New Images</label>
+                <input type="file" name="images" multiple class="w-full mb-4 p-2 rounded text-black" id="newImagesInput" accept="image/*">
+
+                <!-- Preview of newly selected images -->
+                <div id="newPreview" class="flex gap-2 flex-wrap mb-4"></div>
+            </div>
+
+            <!-- Description -->
+            <label class="block mb-2 text-gray-300">Description</label>
+            <textarea name="description" class="w-full mb-4 p-2 rounded text-black">{{ category.description }}</textarea>
+
+            <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-400">
+                Update Category
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+const editForm = document.getElementById('editCategoryForm');
+const isParentCheckbox = document.getElementById('isParentCheckbox');
+const parentSelectDiv = document.getElementById('parentSelectDiv');
+const parentSelect = document.getElementById('parentSelect');
+const parentImageDiv = document.getElementById('parentImageDiv');
+
+// Toggle parent fields
+function toggleParentFields() {
+    if (isParentCheckbox.checked) {
+        parentSelectDiv.style.display = 'none';
+        parentSelect.removeAttribute('required');
+        parentImageDiv.style.display = 'block';
+    } else {
+        parentSelectDiv.style.display = 'block';
+        parentSelect.setAttribute('required', 'required');
+        parentImageDiv.style.display = 'none';
+    }
+}
+toggleParentFields();
+isParentCheckbox.addEventListener('change', toggleParentFields);
+
+// Form validation
+editForm.addEventListener('submit', function(e) {
+    if (!isParentCheckbox.checked && !parentSelect.value) {
+        e.preventDefault();
+        parentSelect.setCustomValidity("You must either check 'Parent Category?' or select a parent category.");
+        parentSelect.reportValidity();
+    } else {
+        parentSelect.setCustomValidity("");
+    }
+});
+
+// Handle removing existing images
+const existingPreview = document.getElementById('existingPreview');
+existingPreview.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const parentDiv = btn.parentElement;
+        const hiddenInput = parentDiv.querySelector('input[type="hidden"]');
+        if (hiddenInput) hiddenInput.remove();
+        parentDiv.remove();
+    });
+});
+
+// Handle new image previews
+const newImagesInput = document.getElementById('newImagesInput');
+const newPreview = document.getElementById('newPreview');
+
+newImagesInput.addEventListener('change', () => {
+    newPreview.innerHTML = '';
+    Array.from(newImagesInput.files).forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.classList.add('relative', 'w-32', 'h-32', 'rounded', 'overflow-hidden', 'border', 'border-gray-300');
+            div.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover">
+                <button type="button" class="absolute top-0 right-0 bg-red-500 text-white px-1 rounded delete-btn">X</button>
+            `;
+            newPreview.appendChild(div);
+            div.querySelector('.delete-btn').addEventListener('click', () => div.remove());
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>
+{% endblock %}

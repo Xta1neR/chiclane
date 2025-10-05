@@ -1,0 +1,39 @@
+{% extends "store/base.html" %}
+{% block title %}Update Order Status{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-yellow-400">
+            Update Status - Order #{{ order.order_number }}
+        </h1>
+
+        <form method="POST" class="bg-gray-900 bg-opacity-60 p-6 rounded-lg shadow-lg">
+            {% csrf_token %}
+
+            <label class="block mb-2 text-gray-300">Current Status:</label>
+            <div class="mb-4 px-3 py-2 rounded bg-gray-800 text-yellow-300">
+                {{ order.get_status_display }}
+            </div>
+
+            <label class="block mb-2 text-gray-300">Select New Status</label>
+            <select name="status" class="w-full mb-6 p-2 rounded text-black">
+                {% for code, label in status_choices %}
+                    <option value="{{ code }}" {% if order.status == code %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <div class="flex justify-between items-center">
+                <a href="{% url 'store:manage_orders' %}" class="text-gray-400 hover:underline">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-yellow-500 text-black px-6 py-2 rounded hover:bg-yellow-400">
+                    Update Status
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

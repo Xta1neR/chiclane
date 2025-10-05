@@ -1,0 +1,19 @@
+/* static/store/css/custom.css - a small palette for luxurious feel */
+:root{
+  --gold: #C9A34A;
+  --ivory: #FBF9F6;
+  --charcoal: #1E1E1E;
+  --muted: #767676;
+}
+
+body { background: var(--ivory); color: var(--charcoal); font-family: 'Inter', sans-serif; }
+.header-brand { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--charcoal); }
+.hero-cta { background: linear-gradient(90deg, rgba(201,163,74,1), rgba(255,210,120,1)); color: #111; padding: 1rem 1.5rem; border-radius: 999px; font-weight: 600; }
+.card { background: white; border-radius: 10px; box-shadow: 0 6px 30px rgba(30,30,30,0.08); transition: transform .25s ease, box-shadow .25s ease; overflow: hidden; }
+.card:hover { transform: translateY(-6px); box-shadow: 0 12px 34px rgba(30,30,30,0.12); }
+.price { font-weight: 700; color: var(--charcoal); }
+.old-price { text-decoration: line-through; color: var(--muted); margin-left: .5rem;}
+.swatch { width: 22px; height: 22px; border-radius: 999px; display:inline-block; margin-right:8px; border:1px solid #ddd; }
+.btn-gold { background: var(--gold); color: #fff; padding: .6rem 1rem; border-radius: 8px; font-weight:700; border:none; }
+.footer { background: #111; color: #fff; padding: 2rem 0; }
+

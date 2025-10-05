@@ -1,0 +1,115 @@
+{% extends "store/base.html" %}
+{% block title %}Shop{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-playfair font-bold mb-6 text-center" data-aos="fade-up">Shop</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+  <!-- Sidebar -->
+  <aside class="md:col-span-1" data-aos="fade-right">
+    <div class="bg-white p-4 rounded-lg shadow-lg sticky top-4 flex flex-col gap-4">
+      
+      <!-- Search -->
+      <form method="get" class="flex flex-col gap-2">
+        <input type="text" name="q" placeholder="Search..." value="{{ query }}" class="w-full p-2 border rounded focus:ring-2 focus:ring-yellow-400" />
+        <button class="mt-2 w-full bg-yellow-400 text-black font-semibold py-2 rounded hover:bg-yellow-500 transition-all">Search</button>
+      </form>
+
+      <!-- Categories Filter -->
+      <h3 class="font-semibold text-lg mt-4">Filter by Category</h3>
+      <form method="get" class="flex flex-col gap-2">
+        {% for cat in all_categories %}
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="category" value="{{ cat.id }}" 
+                 {% if cat.id|stringformat:"s" in selected_categories %} checked {% endif %}
+                 class="form-checkbox">
+          {{ cat.name }}
+        </label>
+        {% endfor %}
+        <button type="submit" class="mt-2 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-all">Apply Filters</button>
+      </form>
+
+    </div>
+  </aside>
+
+  <!-- Products Grid -->
+  <div class="md:col-span-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for p in products %}
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden group" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'50' }}">
+        
+        <!-- Product Image -->
+        <a href="{{ p.get_absolute_url }}" class="relative block overflow-hidden">
+          {% if p.images.first %}
+            <img src="{{ p.images.first.image.url }}" alt="{{ p.name }}" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500">
+          {% else %}
+            <img src="https://via.placeholder.com/400x400?text=ChicLane" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500">
+          {% endif %}
+          {% if p.is_featured %}
+          <span class="absolute top-2 left-2 bg-yellow-400 text-black px-2 py-1 text-xs font-bold rounded">FEATURED</span>
+          {% endif %}
+        </a>
+
+        <!-- Product Details -->
+        <div class="p-4 flex flex-col justify-between h-56">
+          <div>
+            <h3 class="font-semibold text-lg mb-1">{{ p.name }}</h3>
+            <p class="text-gray-500 text-sm line-clamp-2">{{ p.description }}</p>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between">
+            <span class="text-yellow-400 font-bold text-lg">₹{{ p.get_price }}</span>
+            {% if p.discounted_price %}
+            <span class="text-gray-400 line-through text-sm">₹{{ p.price }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Add to Cart -->
+          {% if p.variants.first %}
+<!-- Wishlist + Add to Cart Buttons -->
+<div class="mt-2 flex gap-2">
+    <!-- Wishlist / Unwishlist Button -->
+    <form method="post" action="{% url 'store:toggle_wishlist' %}" class="flex-1">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ p.id }}">
+        <button type="submit"
+            class="{% if p.id in wishlist_product_ids %}bg-gray-400{% else %}bg-pink-500{% endif %} text-white w-full py-2 rounded font-semibold hover:opacity-90 transition-all">
+            {% if p.id in wishlist_product_ids %}Unwishlist{% else %}Wishlist{% endif %}
+        </button>
+    </form>
+
+    <!-- Add to Cart Button -->
+    <form method="post" action="{% url 'store:add_to_cart' %}" class="flex-1">
+        {% csrf_token %}
+        {% if p.variants.first %}
+            <input type="hidden" name="variant_id" value="{{ p.variants.first.id }}">
+            <button type="submit"
+                class="w-full flex items-center justify-center gap-1 px-3 py-2 rounded bg-black text-white font-semibold hover:bg-gray-800 transition-shadow shadow-md">
+                Add to Cart
+            </button>
+        {% else %}
+            <button type="button" disabled
+                class="w-full flex items-center justify-center gap-1 px-3 py-2 rounded bg-gray-300 text-white font-semibold cursor-not-allowed">
+                Out of Stock
+            </button>
+        {% endif %}
+    </form>
+</div>
+
+
+{% else %}
+<span class="text-gray-400">No variants available</span>
+{% endif %}
+
+
+
+        </div>
+
+      </div>
+      {% empty %}
+      <p class="text-center text-gray-500 col-span-3">No products found.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

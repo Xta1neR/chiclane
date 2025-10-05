@@ -1,0 +1,86 @@
+{% extends "store/base.html" %}
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Your Cart</h1>
+
+  {% if items %}
+    <div class="space-y-6">
+      {% for item in items %}
+        <div class="card p-4 flex flex-col md:flex-row items-center gap-4">
+          
+          <!-- Product Image -->
+          <a href="{% url 'store:product_detail' item.variant.product.slug %}" class="flex-shrink-0">
+            {% if item.variant.product.primary_image %}
+              <img src="{{ item.variant.product.primary_image.image.url }}" alt="{{ item.variant.product.name }}" 
+                   class="w-32 h-32 md:w-36 md:h-36 object-cover rounded-lg">
+            {% elif item.variant.product.images.first %}
+              <img src="{{ item.variant.product.images.first.image.url }}" alt="{{ item.variant.product.name }}" 
+                   class="w-32 h-32 md:w-36 md:h-36 object-cover rounded-lg">
+            {% else %}
+              <img src="https://via.placeholder.com/150" alt="No Image" 
+                   class="w-32 h-32 md:w-36 md:h-36 object-cover rounded-lg">
+            {% endif %}
+          </a>
+
+          <!-- Product Info -->
+          <div class="flex-1">
+            <a href="{% url 'store:product_detail' item.variant.product.slug %}" class="font-semibold text-lg hover:text-yellow-600 transition">
+              {{ item.variant.product.name }}
+            </a>
+<!-- Change Size Form -->
+<form method="post" action="{% url 'store:update_cart_item' %}" class="mt-2 flex items-center gap-2">
+  {% csrf_token %}
+  <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+
+  <label for="variant" class="text-sm text-gray-500">Size:</label>
+  <select name="variant_id" 
+          onchange="this.form.submit()" 
+          class="border rounded px-2 py-1 text-sm">
+    {% for v in item.variant.product.variants.all %}
+      <option value="{{ v.id }}" {% if v.id == item.variant.id %}selected{% endif %}>
+        {{ v.size }}
+      </option>
+    {% endfor %}
+  </select>
+</form>
+            <div class="mt-2 flex items-center gap-4">
+              <div>Qty: {{ item.quantity }}</div>
+              <div class="font-semibold text-yellow-600">₹{{ item.line_total }}</div>
+            </div>
+          </div>
+
+          <!-- Remove Button -->
+          <form method="post" action="{% url 'store:remove_from_cart' %}" class="mt-4 md:mt-0">
+            {% csrf_token %}
+            <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+            <button type="submit" 
+                    class="py-2 px-4 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition shadow-md">
+              Remove
+            </button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Cart Summary -->
+    <div class="mt-8 flex flex-col md:flex-row items-center justify-end gap-4">
+      <div class="text-lg font-semibold">
+        Total: <span class="text-yellow-600">₹{{ total }}</span>
+      </div>
+      <a href="{% url 'store:checkout' %}" 
+         class="btn-gold inline-block py-3 px-6 rounded-lg font-semibold mt-2 md:mt-0">
+        Proceed to Checkout
+      </a>
+    </div>
+
+  {% else %}
+    <p class="text-gray-500 text-lg">Your cart is empty.</p>
+    <a href="{% url 'store:product_list' %}" 
+       class="mt-4 inline-block px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-400 transition">
+      Continue Shopping
+    </a>
+  {% endif %}
+</div>
+{% endblock %}

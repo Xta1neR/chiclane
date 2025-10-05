@@ -1,0 +1,15 @@
+{% extends "store/base.html" %}
+{% block title %}Confirm Delete User{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="bg-gray-900 p-8 rounded shadow text-white">
+        <h1 class="text-2xl font-bold mb-4">Are you sure you want to delete {{ user.username }}?</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-500 px-4 py-2 rounded hover:bg-red-400">Yes, Delete</button>
+            <a href="{% url 'store:manage_users' %}" class="bg-gray-500 px-4 py-2 rounded hover:bg-gray-400 ml-2">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

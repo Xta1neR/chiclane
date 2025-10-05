@@ -1,0 +1,43 @@
+{% extends "store/base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-extrabold mb-6 text-yellow-400">Admin Dashboard</h1>
+        <p class="mb-8 text-gray-300">Welcome, {{ request.user.username }}! Manage your store efficiently from here.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Products -->
+            <a href="{% url 'store:manage_products' %}" class="bg-black bg-opacity-70 p-6 rounded-xl shadow-2xl hover:scale-105 transform transition-all">
+                <h2 class="text-2xl font-bold mb-2">Manage Products</h2>
+                <p class="text-gray-300">Add, edit, and remove products & variants.</p>
+            </a>
+
+            <!-- Categories -->
+            <a href="{% url 'store:manage_categories' %}" class="bg-black bg-opacity-70 p-6 rounded-xl shadow-2xl hover:scale-105 transform transition-all">
+                <h2 class="text-2xl font-bold mb-2">Manage Categories</h2>
+                <p class="text-gray-300">Organize your products into categories.</p>
+            </a>
+
+            <!-- Orders -->
+            <a href="{% url 'store:manage_orders' %}" class="bg-black bg-opacity-70 p-6 rounded-xl shadow-2xl hover:scale-105 transform transition-all">
+                <h2 class="text-2xl font-bold mb-2">Manage Orders</h2>
+                <p class="text-gray-300">View and update customer orders.</p>
+            </a>
+
+            <!-- Coupons -->
+            <a href="{% url 'store:manage_coupons' %}" class="bg-black bg-opacity-70 p-6 rounded-xl shadow-2xl hover:scale-105 transform transition-all">
+                <h2 class="text-2xl font-bold mb-2">Manage Coupons</h2>
+                <p class="text-gray-300">Create discounts and promotional codes.</p>
+            </a>
+
+            <!-- Users -->
+            <a href="{% url 'store:manage_users' %}" class="bg-black bg-opacity-70 p-6 rounded-xl shadow-2xl hover:scale-105 transform transition-all">
+                <h2 class="text-2xl font-bold mb-2">Manage Users</h2>
+                <p class="text-gray-300">View and manage customers of your store.</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

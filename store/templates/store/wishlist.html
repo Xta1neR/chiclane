@@ -1,0 +1,86 @@
+{% extends "store/base.html" %}
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+  <h1 class="text-3xl font-bold mb-6">My Wishlist</h1>
+
+  {% if wishlist_items %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {% for item in wishlist_items %}
+      <input type="hidden" name="variant_id" value="{{ item.product.variants.first.id }}">
+        <div class="card p-4 flex flex-col">
+          <!-- Product Image -->
+          <a href="{% url 'store:product_detail' item.product.slug %}" class="mb-4">
+            {% if item.product.primary_image %}
+              <img src="{{ item.product.primary_image.image.url }}" 
+                   alt="{{ item.product.name }}" 
+                   class="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform">
+            {% elif item.product.images.first %}
+              <img src="{{ item.product.images.first.image.url }}" 
+                   alt="{{ item.product.name }}" 
+                   class="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform">
+            {% else %}
+              <img src="https://via.placeholder.com/400x300?text=No+Image" 
+                   alt="{{ item.product.name }}" 
+                   class="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform">
+            {% endif %}
+          </a>
+
+          <!-- Product Info -->
+          <h2 class="text-lg font-semibold mb-1">{{ item.product.name }}</h2>
+          <p class="text-yellow-600 font-bold text-lg mb-1">₹{{ item.product.get_price }}</p>
+          {% if item.product.discounted_price %}
+            <p class="text-gray-500 line-through text-sm">MRP ₹{{ item.product.price }}</p>
+          {% endif %}
+
+          <!-- Buttons -->
+          <div class="mt-auto flex gap-2">
+            <!-- Add to Cart Form -->
+            <form method="post" action="{% url 'store:add_to_cart' %}" class="flex-1">
+              {% csrf_token %}
+              {% if item.product.variants.first %}
+                <input type="hidden" name="variant_id" value="{{ item.product.variants.first.id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" 
+                        class="w-full py-2 rounded-lg font-semibold text-white 
+                               bg-gradient-to-r from-yellow-500 to-yellow-400 
+                               hover:from-yellow-400 hover:to-yellow-300 transition shadow-md">
+                  Add to Cart
+                </button>
+              {% else %}
+                <button type="button" 
+                        class="w-full py-2 rounded-lg font-semibold text-white bg-gray-400 cursor-not-allowed">
+                  Out of Stock
+                </button>
+              {% endif %}
+            </form>
+
+            <!-- Remove from Wishlist Form -->
+            <form method="post" action="{% url 'store:toggle_wishlist' %}" class="flex-1">
+              {% csrf_token %}
+              <input type="hidden" name="product_id" value="{{ item.product.id }}">
+              <button type="submit" 
+                      class="w-full py-2 rounded-lg font-semibold text-white 
+                             bg-gradient-to-r from-pink-600 to-pink-500 
+                             hover:from-pink-500 hover:to-pink-400 transition shadow-md">
+                Remove
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  {% else %}
+    <p class="text-gray-500 text-lg">Your wishlist is empty. Start adding your favorite products!</p>
+    <a href="{% url 'store:product_list' %}" 
+       class="mt-4 inline-block px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-400 transition">
+      Continue Shopping
+    </a>
+  {% endif %}
+
+</div>
+{% endblock %}

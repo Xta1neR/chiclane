@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "chiclane_project/wsgi.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "chiclane_project/wsgi.py" }
+  ]
+}

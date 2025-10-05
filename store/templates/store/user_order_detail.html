@@ -1,0 +1,33 @@
+{% extends "store/base.html" %}
+{% block title %}Order Details{% endblock %}
+{% block content %}
+
+<h1 class="text-2xl mb-6">Order {{ order.order_number }}</h1>
+
+<div class="mb-4 p-6 bg-white rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
+  <p><strong>Status:</strong> {{ order.status }}</p>
+  <p><strong>Placed on:</strong> {{ order.created_at|date:"d M Y H:i" }}</p>
+  <p><strong>Total:</strong> ₹{{ order.total }}</p>
+  {% if order.discount > 0 %}
+    <p><strong>Discount:</strong> ₹{{ order.discount }}</p>
+  {% endif %}
+  <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
+  <p><strong>Phone:</strong> {{ order.phone_number }}</p>
+</div>
+
+<div class="mb-8 p-6 bg-white rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">Items</h2>
+  <ul>
+    {% for item in order_items %}
+      <li class="flex justify-between py-2 border-b">
+        <div>{{ item.product.name }} ({{ item.variant.size }}) × {{ item.quantity }}</div>
+        <div>₹{{ item.price }}</div>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<a href="{% url 'store:profile' %}#orders" class="btn-gold">Back to Orders</a>
+
+{% endblock %}

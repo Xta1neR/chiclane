@@ -1,0 +1,210 @@
+{% extends "store/base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-2 gap-12">
+
+  <!-- Product Images -->
+  <div class="space-y-4">
+    <div class="aspect-[4/3] bg-gray-100 flex items-center justify-center rounded-xl overflow-hidden shadow-sm">
+      {% if product.primary_image %}
+        <img id="main-image" src="{{ product.primary_image.image.url }}" 
+             class="w-full h-full object-contain rounded-xl" alt="{{ product.name }}">
+      {% elif product.images.first %}
+        <img id="main-image" src="{{ product.images.first.image.url }}" 
+             class="w-full h-full object-contain rounded-xl" alt="{{ product.name }}">
+      {% else %}
+        <img id="main-image" src="https://via.placeholder.com/600x450?text=No+Image" 
+             class="w-full h-full object-contain rounded-xl" alt="No Image">
+      {% endif %}
+    </div>
+
+    {% if product.images.all %}
+      <div class="flex gap-3 overflow-x-auto">
+        {% for img in product.images.all %}
+          <div class="aspect-square w-20 flex-shrink-0 bg-gray-100 flex items-center justify-center rounded-lg cursor-pointer border border-gray-200 hover:border-yellow-400 transition">
+            <img data-src="{{ img.image.url }}" 
+                 class="thumbnail w-full h-full object-contain rounded" 
+                 src="{{ img.image.url }}" alt="">
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Product Info -->
+  <div class="space-y-6">
+    <h1 class="text-4xl font-playfair font-bold">{{ product.name }}</h1>
+    <p class="text-gray-700 text-base leading-relaxed">{{ product.description|linebreaks }}</p>
+
+    <div class="flex items-center gap-4">
+      <span class="text-3xl text-yellow-600 font-semibold">₹{{ product.get_price }}</span>
+      {% if product.discounted_price %}
+        <span class="text-gray-400 line-through">₹{{ product.price }}</span>
+      {% endif %}
+    </div>
+
+    <!-- Variant Sizes -->
+    <form method="post" action="{% url 'store:add_to_cart' %}" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <p class="font-semibold mb-2">Choose Size:</p>
+        <div class="flex gap-3 flex-wrap">
+          {% for v in variants %}
+            {% if v.stock > 0 %}
+              <label class="relative cursor-pointer">
+                <input type="radio" name="variant_id" value="{{ v.id }}" class="sr-only peer" {% if forloop.first %}checked{% endif %}>
+                <div class="px-5 py-3 border rounded-lg peer-checked:bg-yellow-400 peer-checked:text-black
+                            hover:border-yellow-400 transition flex items-center justify-center
+                            {% if v.stock <= 3 %} group {% endif %} font-medium">
+                  {{ v.size }}
+                </div>
+                {% if v.stock <= 3 %}
+                  <span class="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-red-600 opacity-0 group-hover:opacity-100 transition">
+                    {{ v.stock }} left
+                  </span>
+                {% endif %}
+              </label>
+            {% else %}
+              <div class="px-5 py-3 border rounded-lg bg-gray-200 text-gray-400 cursor-not-allowed font-medium">
+                {{ v.size }}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Quantity + Add to Cart -->
+<div class="flex gap-4 items-center">
+  <input type="number" name="quantity" value="1" min="1" 
+         class="p-3 border rounded-lg w-24 text-center">
+
+  <button type="submit" 
+          class="flex-1 max-w-[200px] py-3 rounded-lg font-semibold text-white 
+                 bg-gradient-to-r from-yellow-500 to-yellow-400 
+                 hover:from-yellow-400 hover:to-yellow-300 transition shadow-md">
+    Add to Cart
+  </button>
+</div>
+</form>
+
+<!-- Wishlist Button -->
+<form method="post" action="{% url 'store:toggle_wishlist' %}">
+  {% csrf_token %}
+  <input type="hidden" name="product_id" value="{{ product.id }}">
+  <button type="submit" 
+          class="w-full max-w-[220px] flex items-center justify-center gap-2 py-3 rounded-lg font-semibold 
+                 bg-gradient-to-r from-pink-600 to-pink-500 text-white hover:from-pink-500 hover:to-pink-400 transition shadow-md">
+    {% if product.id in wishlist_product_ids %}
+      ❤️ Remove from Wishlist
+    {% else %}
+      🤍 Add to Wishlist
+    {% endif %}
+  </button>
+</form>
+
+
+
+    <!-- Delivery & Features -->
+    <div class="mt-8 border-t pt-6 space-y-4 max-w-md">
+
+      <!-- Delivery Box -->
+      <div class="p-4 border rounded-lg bg-gray-50 space-y-2">
+        <h3 class="font-semibold flex items-center gap-2">
+          <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2"
+               viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18v13H3V3zM3 16h18v5H3v-5zM16 16v-5"></path></svg>
+          Delivery Options
+        </h3>
+        <form id="pincode-form" class="flex gap-2 items-center mt-1">
+          <input type="text" id="pincode-input" placeholder="Enter PIN code"
+                 class="border p-2 rounded-lg w-40" maxlength="6">
+          <button type="submit" class="btn-gold px-4 py-2">Check</button>
+        </form>
+        <p id="pincode-result" class="mt-2 text-green-600 font-semibold"></p>
+      </div>
+
+      <!-- Features -->
+      <div class="flex items-start gap-3">
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        <div>
+          <p class="font-semibold">100% Original Products</p>
+          <p class="text-sm text-gray-600">All products are authentic and sourced directly from brands.</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"></path></svg>
+        <div>
+          <p class="font-semibold">Pay on Delivery</p>
+          <p class="text-sm text-gray-600">Cash or card payment at your doorstep (availability may vary).</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20 20v-6h-6"></path></svg>
+        <div>
+          <p class="font-semibold">Easy 14 Days Returns & Exchanges</p>
+          <p class="text-sm text-gray-600">Hassle-free returns or exchanges within 14 days of delivery.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Related Products -->
+{% if related_products %}
+<div class="mt-16 max-w-7xl mx-auto px-4">
+  <h2 class="text-3xl font-bold mb-6">You may also like</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    {% for p in related_products %}
+      <a href="{% url 'store:product_detail' p.slug %}" 
+         class="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all">
+        {% if p.primary_image %}
+          <img src="{{ p.primary_image.image.url }}" alt="{{ p.name }}"
+               class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500">
+        {% elif p.images.first %}
+          <img src="{{ p.images.first.image.url }}" alt="{{ p.name }}"
+               class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500">
+        {% else %}
+          <img src="https://via.placeholder.com/400x300?text=No+Image" alt="{{ p.name }}"
+               class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500">
+        {% endif %}
+        <div class="p-2">
+          <h3 class="text-sm font-medium">{{ p.name }}</h3>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-yellow-600">₹{{ p.get_price }}</span>
+            {% if p.discounted_price %}
+              <span class="text-xs text-gray-400 line-through">₹{{ p.price }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- JS: Thumbnail click and Pincode check -->
+<script>
+  const mainImage = document.getElementById('main-image');
+  document.querySelectorAll('.thumbnail').forEach(img => {
+    img.addEventListener('click', () => { mainImage.src = img.dataset.src; });
+  });
+
+  document.getElementById('pincode-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const pincode = document.getElementById('pincode-input').value.trim();
+    const resultEl = document.getElementById('pincode-result');
+    if (!pincode) {
+      resultEl.textContent = "Please enter a PIN code.";
+      resultEl.className = "mt-2 text-red-500 font-semibold";
+      return;
+    }
+    resultEl.textContent = "Delivery available ✅";
+    resultEl.className = "mt-2 text-green-600 font-semibold";
+  });
+</script>
+{% endblock %}

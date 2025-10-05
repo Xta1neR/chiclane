@@ -1,0 +1,46 @@
+{% extends "store/base.html" %}
+{% block title %}Manage Coupons{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-extrabold mb-6 text-yellow-400">Manage Coupons</h1>
+
+        <a href="{% url 'store:add_coupon' %}" class="mb-4 inline-block bg-yellow-500 text-black font-bold px-4 py-2 rounded shadow hover:bg-yellow-400">
+            + Add New Coupon
+        </a>
+
+        <div class="overflow-x-auto rounded-lg bg-black bg-opacity-50 shadow-lg">
+            <table class="min-w-full divide-y divide-gray-700">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Code</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Discount %</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Min Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Active</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-900 divide-y divide-gray-700">
+                    {% for coupon in coupons %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ coupon.code }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ coupon.discount_percent }}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap">₹{{ coupon.min_amount }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{% if coupon.active %}Yes{% else %}No{% endif %}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'store:edit_coupon' coupon.id %}" class="text-yellow-400 hover:underline">Edit</a> |
+                            <a href="{% url 'store:delete_coupon' coupon.id %}" class="text-red-500 hover:underline">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-400">No coupons found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

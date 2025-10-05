@@ -1,0 +1,102 @@
+{% extends "store/base.html" %}
+{% block title %}Edit Product{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-yellow-400">Edit Product</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Basic Details -->
+            <label class="block mb-2 text-gray-300">Name</label>
+            <input type="text" name="name" value="{{ product.name }}" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Category</label>
+            <select name="category" class="w-full mb-4 p-2 rounded text-black" required>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label class="block mb-2 text-gray-300">Description</label>
+            <textarea name="description" class="w-full mb-4 p-2 rounded text-black" placeholder="Short description">{{ product.description }}</textarea>
+
+            <label class="block mb-2 text-gray-300">Price</label>
+            <input type="number" name="price" step="0.01" value="{{ product.price }}" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Discounted Price (Optional)</label>
+            <input type="number" name="discounted_price" step="0.01" value="{{ product.discounted_price }}" class="w-full mb-4 p-2 rounded text-black">
+
+            <label class="block mb-2 text-gray-300">Featured</label>
+            <input type="checkbox" name="is_featured" class="mb-4" {% if product.is_featured %}checked{% endif %}>
+
+            <label class="block mb-2 text-gray-300">Active</label>
+            <input type="checkbox" name="is_active" class="mb-4" {% if product.is_active %}checked{% endif %}>
+
+            <!-- Product Sizes -->
+            <label class="block mb-2 text-gray-300 font-bold">Sizes & Stock</label>
+            <div class="grid grid-cols-5 gap-2 mb-4">
+                {% for size, variant in size_variants %}
+                <div class="bg-gray-800 p-2 rounded">
+                    <label class="block text-gray-300">{{ size }}</label>
+                    <input type="number" name="stock_{{ size }}" placeholder="Stock" min="0"
+                           value="{% if variant %}{{ variant.stock }}{% endif %}"
+                           class="w-full mb-1 p-1 rounded text-black">
+                    <label class="block text-gray-300 text-sm">Active</label>
+                    <input type="checkbox" name="active_{{ size }}" class="mb-1"
+                           {% if variant and variant.is_active %}checked{% endif %}>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Existing Images -->
+            <label class="block mb-2 text-gray-300 font-bold">Existing Images</label>
+            <div class="flex gap-2 flex-wrap mb-4">
+                {% for img in images %}
+                <div class="relative">
+                    <img src="{{ img.image.url }}" class="h-20 w-20 object-cover rounded">
+                    <div class="mt-1 text-center">
+                        <input type="radio" name="primary_existing" value="{{ img.id }}" {% if img.is_primary %}checked{% endif %}> Primary
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Add New Images -->
+            <label class="block mb-2 text-gray-300 font-bold">Add New Images</label>
+            <input type="file" name="images" multiple class="mb-4" id="newImagesInput">
+            <div id="previewContainer" class="flex gap-2 flex-wrap mb-4"></div>
+
+            <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-400">Update Product</button>
+        </form>
+    </div>
+</div>
+
+<script>
+const newImagesInput = document.getElementById('newImagesInput');
+const previewContainer = document.getElementById('previewContainer');
+
+newImagesInput.addEventListener('change', () => {
+    previewContainer.innerHTML = '';
+    Array.from(newImagesInput.files).forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.classList.add('relative');
+            div.innerHTML = `
+                <img src="${e.target.result}" class="h-20 w-20 object-cover rounded">
+                <button type="button" class="absolute top-0 right-0 bg-red-500 text-white px-1 rounded delete-btn">X</button>
+                <div class="mt-1 text-center">
+                    <input type="radio" name="primary_new" value="${idx}" ${idx===0?'checked':''}> Primary
+                </div>
+            `;
+            previewContainer.appendChild(div);
+            div.querySelector('.delete-btn').addEventListener('click', () => div.remove());
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>
+{% endblock %}

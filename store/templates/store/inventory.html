@@ -1,0 +1,42 @@
+{% extends "store/base.html" %}
+{% block title %}Inventory Management{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-extrabold mb-6 text-yellow-400">Inventory Management</h1>
+
+        <div class="overflow-x-auto rounded-lg bg-black bg-opacity-50 shadow-lg">
+            <table class="min-w-full divide-y divide-gray-700">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Product</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Variant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Stock</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-900 divide-y divide-gray-700">
+                    {% for item in inventory %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ item.product.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ item.variant.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ item.stock }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ item.price }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="#" class="text-yellow-400 hover:underline">Edit</a> |
+                            <a href="#" class="text-red-500 hover:underline">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-400">No inventory items found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

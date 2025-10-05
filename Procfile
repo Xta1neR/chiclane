@@ -1,0 +1,1 @@
+web: gunicorn chiclane_project.wsgi

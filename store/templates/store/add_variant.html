@@ -1,0 +1,45 @@
+{% extends "store/base.html" %}
+{% block title %}Add Variant{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-yellow-400">Add Product Variant</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <label class="block mb-2 text-gray-300">Product</label>
+            <select name="product" class="w-full mb-4 p-2 rounded text-black" required>
+                {% for product in products %}
+                <option value="{{ product.id }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label class="block mb-2 text-gray-300">SKU</label>
+            <input type="text" name="sku" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Size</label>
+            <select name="size" class="w-full mb-4 p-2 rounded text-black" required>
+                {% for code, label in SIZE_CHOICES %}
+                <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <label class="block mb-2 text-gray-300">Color</label>
+            <input type="text" name="color" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Price (Optional, fallback to product price)</label>
+            <input type="number" name="price" step="0.01" class="w-full mb-4 p-2 rounded text-black">
+
+            <label class="block mb-2 text-gray-300">Stock</label>
+            <input type="number" name="stock" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Active</label>
+            <input type="checkbox" name="is_active" class="mb-4">
+
+            <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-400">Add Variant</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

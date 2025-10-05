@@ -1,0 +1,33 @@
+{% extends "store/base.html" %}
+{% block title %}Add Coupon{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-yellow-400">Add Coupon</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            <label class="block mb-2 text-gray-300">Code</label>
+            <input type="text" name="code" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Discount %</label>
+            <input type="number" name="discount_percent" min="0" max="100" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Minimum Amount</label>
+            <input type="number" name="min_amount" min="0" step="0.01" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Start Date</label>
+            <input type="datetime-local" name="start_date" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">End Date</label>
+            <input type="datetime-local" name="end_date" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <label class="block mb-2 text-gray-300">Active?</label>
+            <input type="checkbox" name="active" class="mb-4">
+<br>
+            <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-400">Add Coupon</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

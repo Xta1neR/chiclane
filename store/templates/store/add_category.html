@@ -1,0 +1,119 @@
+{% extends "store/base.html" %}
+{% block title %}Add Category{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white p-8">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-yellow-400">Add New Category</h1>
+
+        <form id="categoryForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Name -->
+            <label class="block mb-2 text-gray-300">Name</label>
+            <input type="text" name="name" class="w-full mb-4 p-2 rounded text-black" required>
+
+            <!-- Parent Category Checkbox -->
+            <label class="inline-flex items-center mb-4 text-gray-300">
+                <input type="checkbox" name="is_parent" id="isParentCheckbox" class="mr-2">
+                Parent Category?
+            </label>
+
+            <!-- Parent Dropdown -->
+            <div id="parentSelectDiv" class="mb-4">
+                <label class="block mb-2 text-gray-300">Select Parent Category</label>
+                <select name="parent" id="parentSelect" class="w-full p-2 rounded text-black">
+                    <option value="">-- Select Parent --</option>
+                    {% for c in categories %}
+                        {% if c.parent is none %}
+                        <option value="{{ c.id }}">{{ c.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Parent Category Images -->
+            <div id="parentImageDiv" class="mb-4" style="display: none;">
+                <label class="block mb-2 text-gray-300 font-bold">Upload Images</label>
+                <input type="file" name="images" id="newImagesInput" multiple class="w-full mb-2 p-2 rounded text-black" accept="image/*">
+
+                <div id="previewContainer" class="flex gap-2 flex-wrap"></div>
+            </div>
+
+            <!-- Description -->
+            <label class="block mb-2 text-gray-300">Description</label>
+            <textarea name="description" class="w-full mb-4 p-2 rounded text-black"></textarea>
+
+            <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-400">
+                Add Category
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+const categoryForm = document.getElementById('categoryForm');
+const isParentCheckbox = document.getElementById('isParentCheckbox');
+const parentSelectDiv = document.getElementById('parentSelectDiv');
+const parentSelect = document.getElementById('parentSelect');
+const parentImageDiv = document.getElementById('parentImageDiv');
+
+const newImagesInput = document.getElementById('newImagesInput');
+const previewContainer = document.getElementById('previewContainer');
+
+// Show/hide parent dropdown and image input
+function toggleParentFields() {
+    if (isParentCheckbox.checked) {
+        parentSelectDiv.style.display = 'none';
+        parentSelect.removeAttribute('required');
+        parentImageDiv.style.display = 'block';
+    } else {
+        parentSelectDiv.style.display = 'block';
+        parentSelect.setAttribute('required', 'required');
+        parentImageDiv.style.display = 'none';
+        previewContainer.innerHTML = ''; // clear preview if not parent
+        newImagesInput.value = '';
+    }
+}
+toggleParentFields();
+isParentCheckbox.addEventListener('change', toggleParentFields);
+
+// Preview & remove selected images
+newImagesInput.addEventListener('change', () => {
+    previewContainer.innerHTML = '';
+    Array.from(newImagesInput.files).forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.classList.add('relative', 'w-24', 'h-24', 'rounded', 'overflow-hidden', 'border', 'border-gray-300');
+            div.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover">
+                <button type="button" class="absolute top-0 right-0 bg-red-500 text-white px-1 rounded delete-btn">X</button>
+            `;
+            previewContainer.appendChild(div);
+            div.querySelector('.delete-btn').addEventListener('click', () => {
+                div.remove();
+                // Remove corresponding file from input.files
+                const dt = new DataTransfer();
+                Array.from(newImagesInput.files).forEach((f, i) => {
+                    if (i !== idx) dt.items.add(f);
+                });
+                newImagesInput.files = dt.files;
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
+// Validation before submit
+categoryForm.addEventListener('submit', function(e) {
+    if (!isParentCheckbox.checked && !parentSelect.value) {
+        parentSelect.setCustomValidity("Please select a parent category or check 'Parent Category?'");
+        parentSelect.reportValidity();
+        e.preventDefault();
+    } else {
+        parentSelect.setCustomValidity(""); // clear previous error
+    }
+});
+</script>
+{% endblock %}
